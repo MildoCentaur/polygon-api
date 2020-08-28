@@ -1,3 +1,4 @@
 Flask
 flask_restful
-bcrypt
+psycopg2
+geoalchemy2
