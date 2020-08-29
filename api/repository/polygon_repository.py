@@ -11,13 +11,24 @@ class PolygonRepository:
         return Polygon.query.filter_by(name=name).first()
 
     def is_closed_polygon(self, polygon_points: List[str]) -> bool:
+        # query = session.query(Lake.name,
+        # ...                       func.ST_Area(func.ST_Buffer(Lake.geom, 2)) \
+        # ...                           .label('bufferarea'))
+        # >>> for row in query:
+        # ...     print '%s: %f' % (row.name, row.bufferarea)
+
         return len(list(self.session.execute('ST_GeomFromText("POLYGON({0})")'.format(polygon_points)))) > 0
 
-    def save(self, polygon: Polygon):
-        pass
+    def save(self, polygon: Polygon) -> Polygon:
+        self.session.add(polygon)
+        self.session.commit()
+        return self.find_by_name(polygon.name)
 
-    def delete(self, name: str):
-        pass
+    def delete(self, name: str) -> None:
+        polygon = self.find_by_name(name)
+        if polygon is not None:
+            self.session.delete(polygon)
+            self.session.commit()
 
 # Validate is a close polygon
 # SELECT ST_GeomFromText('POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))');
