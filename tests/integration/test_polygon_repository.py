@@ -19,11 +19,18 @@ class PolygonRepositoryTest(BaseTest):
             polygon = repository.find_by_name('alejandro')
             self.assertIsNone(polygon, "It was not expected to find an area.")
 
-    # def test_sql_injection(self):
-    #     with self.app_context():
-    #         repository = PolygonRepository(db.session)
-    #         polygon = repository.find_by_name('\'delete * from areas')
-    #         self.assertIsNone(polygon, "It was not expected to find an area.")
+    def test_is_valid_simple_polygon(self):
+        with self.app_context():
+            repository = PolygonRepository(db.session)
+            valid = repository.is_closed_polygon(['0 0,1 0,1 1,0 1,0 0'])
+            self.assertTrue(valid, "It was expected to be valid.")
+
+    def test_is_valid_complex_polygon(self):
+        with self.app_context():
+            repository = PolygonRepository(db.session)
+            valid = repository.is_closed_polygon(
+                ['0 0,10 0,10 10,0 10,0 0', '2 2,2 4,4 4,4 2,2 2', '5.5 5.5,5 7,7 7,7 5,5.5 5.5'])
+            self.assertTrue(valid, "It was expected to be valid.")
 
     def test_crud(self):
         with self.app_context():
