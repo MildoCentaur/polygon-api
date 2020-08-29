@@ -6,6 +6,26 @@ from tests.integration.base_test import BaseTest
 
 class PolygonRepositoryTest(BaseTest):
 
+    def test_find_by_properties(self):
+        with self.app_context():
+            repository = PolygonRepository(db.session)
+            polygons = repository.find_by_properties('{"property2":"value21","property5":"value5"}')
+            expected = ['testPolygon2']
+            polygons = list(polygons)
+            self.assertEqual(len(polygons), len(expected))
+
+    def test_find_intersected_area(self):
+        with self.app_context():
+            repository = PolygonRepository(db.session)
+            polygons = repository.find_intersected_area('POLYGON((5 2, 7 6, 9 5, 5 2))')
+            expected = ['PolygonWithHole', 'testPolygon3', 'testPolygon2']
+            polygons = list(polygons)
+            self.assertEqual(len(polygons), len(expected))
+
+            for i in range(len(expected)):
+                self.assertEqual(polygons[i].name, expected[i])
+                self.assertIsNotNone(polygons[i].intersected)
+
     def test_find_by_area_intersects_areas(self):
         with self.app_context():
             repository = PolygonRepository(db.session)
@@ -18,7 +38,7 @@ class PolygonRepositoryTest(BaseTest):
     def test_find_by_area_no_intersect(self):
         with self.app_context():
             repository = PolygonRepository(db.session)
-            polygons = repository.find_by_area('POLYGON((25 22, 7 6, 9 5))')
+            polygons = repository.find_by_area('POLYGON((25 22, 27 26, 29 25, 25 22))')
             expected = []
             polygon_names = [polygon.name for polygon in polygons]
             self.assertListEqual(polygon_names, expected,
@@ -39,7 +59,7 @@ class PolygonRepositoryTest(BaseTest):
             repository = PolygonRepository(db.session)
             polygons = repository.find_like_name('alejandro')
             expected = []
-            self.assertListEqual(polygons, expected,
+            self.assertListEqual(list(polygons), expected,
                                  "Expected list should be equal to the retrieved list of names.")
 
     def test_find_by_name_with_expected_name(self):

@@ -1,8 +1,7 @@
 import re
-from typing import Iterable
-from typing import List
+from typing import Iterable, List
 
-from sqlalchemy import func, desc
+from sqlalchemy import func, desc, String, cast
 
 from models.polygon import Polygon
 
@@ -10,6 +9,16 @@ from models.polygon import Polygon
 class PolygonRepository:
     def __init__(self, session) -> None:
         self.session = session
+
+    def find_by_properties(self, properties: str) -> Iterable[object]:
+        return self.session.query(Polygon).filter(cast(Polygon.properties, String) == properties)
+
+    def find_intersected_area(self, search_area: str) -> Iterable[object]:
+        return self.session.query(Polygon.name,
+                                  func.ST_Intersection(func.ST_GeomFromText(search_area), Polygon.geom)
+                                  .label('intersected')) \
+            .filter(Polygon.geom.ST_Intersects(func.ST_GeomFromText(search_area))) \
+            .order_by(desc(func.ST_Area(Polygon.geom)))
 
     def find_by_area(self, search_area: str) -> Iterable[Polygon]:
         return self.session.query(Polygon).filter(
