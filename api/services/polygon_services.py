@@ -9,12 +9,13 @@ class RegisterPolygon:
         self.repository = repository
 
     def register(self, data: Dict) -> Polygon:
-        return self.repository.save(data)
+        polygon = Polygon(data["name"], data["date"], data["are"], data["properties"])
+        return self.repository.save(polygon)
 
 
 class DeleterPolygon:
     def __init__(self, repository: PolygonRepository):
         self.repository = repository
 
-    def delete(self, name: str) -> Polygon:
-        return self.repository.delete(name)
+    def delete(self, name: str) -> None:
+        self.repository.delete(name)
