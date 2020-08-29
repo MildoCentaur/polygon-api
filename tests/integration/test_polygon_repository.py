@@ -5,14 +5,41 @@ from tests.integration.base_test import BaseTest
 
 
 class PolygonRepositoryTest(BaseTest):
+
+    def find_by_area_intersects_areas(self):
+        with self.app_context():
+            repository = PolygonRepository(db.session)
+            polygons = repository.find_by_area('POLYGON((5 2, 7 6, 9 5))')
+            expected = ['PolygonWithHole', 'testpolygon3', 'testpolygon2']
+            polygon_names = [polygon.name for polygon in polygons]
+            self.assertListEqual(polygon_names, expected,
+                                 "Expected list should be equal to the retrieved list of names.")
+
+    def find_by_area_no_intersect(self):
+        with self.app_context():
+            repository = PolygonRepository(db.session)
+            polygons = repository.find_by_area()
+            expected = []
+            polygon_names = [polygon.name for polygon in polygons]
+            self.assertListEqual(polygon_names, expected,
+                                 "Expected list should be equal to the retrieved list of names.")
+
     def test_find_like_name(self):
         with self.app_context():
             repository = PolygonRepository(db.session)
             polygons = repository.find_like_name('olygon')
-            expected = ['Polygon', 'PolygonWithHole', 'testpolygon1', 'testpolygon2']
+            expected = ['Polygon', 'PolygonWithHole', 'testPolygon2', 'testPolygon3']
 
             polygon_names = [polygon.name for polygon in polygons]
             self.assertListEqual(polygon_names, expected,
+                                 "Expected list should be equal to the retrieved list of names.")
+
+    def test_find_like_name_returns_empty(self):
+        with self.app_context():
+            repository = PolygonRepository(db.session)
+            polygons = repository.find_like_name('alejandro')
+            expected = []
+            self.assertListEqual(polygons, expected,
                                  "Expected list should be equal to the retrieved list of names.")
 
     def test_find_by_name_with_expected_name(self):
