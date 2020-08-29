@@ -1,7 +1,7 @@
-from db import db
 from models.polygon import Polygon
 from repository.polygon_repository import PolygonRepository
 from tests.integration.base_test import BaseTest
+from utilities.db import db
 
 
 class PolygonRepositoryTest(BaseTest):

@@ -4,14 +4,14 @@ import os
 from flask import Flask
 from flask_restful import Api
 
-from db import db
 from resources.polygon_resource import PolygonResource
+from utilities.db import db
 
 logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL',
-                                                       'postgresql://postgres:mysecretpassword@localhost:5433/postgres')
+                                                       'postgresql://postgres:mysecretpassword@polygon-api_postgis_1:5432/postgres')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 api = Api(app)
 

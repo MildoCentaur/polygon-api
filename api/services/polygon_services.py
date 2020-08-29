@@ -9,7 +9,7 @@ class RegisterPolygon:
         self.repository = repository
 
     def register(self, data: Dict) -> Polygon:
-        polygon = Polygon(data["name"], data["date"], data["are"], data["properties"])
+        polygon = Polygon(data["name"], data["date"], data["area"], data["properties"])
         return self.repository.save(polygon)
 
 

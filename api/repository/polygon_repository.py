@@ -28,7 +28,7 @@ class PolygonRepository:
     def find_by_name(self, name: str) -> Polygon:
         return self.session.query(Polygon).filter_by(name=name).first()
 
-    def find_like_name(self, name: str) -> Iterable[Polygon]:
+    def find_like_name(self, name: str) -> List[Polygon]:
         search = "%{}%".format(name)
         return list(self.session.query(Polygon).filter(Polygon.name.like(search)).order_by(Polygon.name))
 
