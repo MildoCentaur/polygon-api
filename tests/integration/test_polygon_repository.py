@@ -6,19 +6,19 @@ from tests.integration.base_test import BaseTest
 
 class PolygonRepositoryTest(BaseTest):
 
-    def find_by_area_intersects_areas(self):
+    def test_find_by_area_intersects_areas(self):
         with self.app_context():
             repository = PolygonRepository(db.session)
-            polygons = repository.find_by_area('POLYGON((5 2, 7 6, 9 5))')
-            expected = ['PolygonWithHole', 'testpolygon3', 'testpolygon2']
+            polygons = repository.find_by_area('POLYGON((5 2, 7 6, 9 5, 5 2))')
+            expected = ['PolygonWithHole', 'testPolygon3', 'testPolygon2']
             polygon_names = [polygon.name for polygon in polygons]
             self.assertListEqual(polygon_names, expected,
                                  "Expected list should be equal to the retrieved list of names.")
 
-    def find_by_area_no_intersect(self):
+    def test_find_by_area_no_intersect(self):
         with self.app_context():
             repository = PolygonRepository(db.session)
-            polygons = repository.find_by_area()
+            polygons = repository.find_by_area('POLYGON((25 22, 7 6, 9 5))')
             expected = []
             polygon_names = [polygon.name for polygon in polygons]
             self.assertListEqual(polygon_names, expected,

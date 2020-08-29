@@ -2,7 +2,7 @@ import re
 from typing import Iterable
 from typing import List
 
-from sqlalchemy import func
+from sqlalchemy import func, desc
 
 from models.polygon import Polygon
 
@@ -12,7 +12,8 @@ class PolygonRepository:
         self.session = session
 
     def find_by_area(self, search_area: str) -> Iterable[Polygon]:
-        return list(self.session.query(Polygon).filter(Polygon.geom.ST_Intersects(search_area)).order_by(
+        return self.session.query(Polygon).filter(
+            Polygon.geom.ST_Intersects(func.ST_GeomFromText(search_area))).order_by(desc(
             func.ST_Area(Polygon.geom)))
 
     def find_by_name(self, name: str) -> Polygon:
