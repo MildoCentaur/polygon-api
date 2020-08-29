@@ -5,6 +5,15 @@ from tests.integration.base_test import BaseTest
 
 
 class PolygonRepositoryTest(BaseTest):
+    def test_find_like_name(self):
+        with self.app_context():
+            repository = PolygonRepository(db.session)
+            polygons = repository.find_like_name('olygon')
+            expected = ['Polygon', 'PolygonWithHole', 'testpolygon1', 'testpolygon2']
+
+            polygon_names = [polygon.name for polygon in polygons]
+            self.assertListEqual(polygon_names, expected,
+                                 "Expected list should be equal to the retrieved list of names.")
 
     def test_find_by_name_with_expected_name(self):
         with self.app_context():
@@ -31,6 +40,20 @@ class PolygonRepositoryTest(BaseTest):
             valid = repository.is_closed_polygon(
                 ['0 0,10 0,10 10,0 10,0 0', '2 2,2 4,4 4,4 2,2 2', '5.5 5.5,5 7,7 7,7 5,5.5 5.5'])
             self.assertTrue(valid, "It was expected to be valid.")
+
+    def test_is_valid_open_polygon(self):
+        with self.app_context():
+            repository = PolygonRepository(db.session)
+            valid = repository.is_closed_polygon(
+                ['0 0,10 0,10 10,0 10,0 1'])
+            self.assertFalse(valid, "It was expected to be invalid.")
+
+    def test_is_valid_invalid_polygon(self):
+        with self.app_context():
+            repository = PolygonRepository(db.session)
+            valid = repository.is_closed_polygon(
+                ['0 0,10 a,10 10,0 10,0 0'])
+            self.assertFalse(valid, "It was expected to be invalid.")
 
     def test_crud(self):
         with self.app_context():

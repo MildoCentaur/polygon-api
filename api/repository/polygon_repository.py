@@ -9,23 +9,23 @@ class PolygonRepository:
         self.session = session
 
     def find_by_name(self, name: str) -> Polygon:
-        return Polygon.query.filter_by(name=name).first()
+        return self.session.query(Polygon).filter_by(name=name).first()
+
+    def find_like_name(self, name: str) -> List[Polygon]:
+        search = "%{}%".format(name)
+        return self.session.query(Polygon).filter(Polygon.name.like(search)).order_by(Polygon.name)
 
     def is_closed_polygon(self, polygon_points: List[str]) -> bool:
-        # query = session.query(Lake.name,
-        # ...                       func.ST_Area(func.ST_Buffer(Lake.geom, 2)) \
-        # ...                           .label('bufferarea'))
-        # >>> for row in query:
-        # ...     print '%s: %f' % (row.name, row.bufferarea)
-        pattern = re.compile("[0-9,]+")
-        complete_polygon = ''
+        pattern = re.compile("[0-9,. ]+")
         for polygon in polygon_points:
-            if not pattern.match(polygon):
+            if not pattern.fullmatch(polygon):
                 return False
-            complete_polygon += '({0})'.format(polygon)
-
-        is_polygon = self.session.execute(
-            'select ST_isclosed(ST_GeomFromText(\'POLYGON(({0}))\'))'.format(polygon_points[0]))
+        complete_polygon = ",".join(["({0})".format(polygon) for polygon in polygon_points])
+        try:
+            is_polygon = self.session.execute(
+                'select ST_isclosed(ST_GeomFromText(\'POLYGON({0})\'))'.format(complete_polygon))
+        except BaseException:
+            return False
 
         return list(is_polygon)[0]
 
@@ -39,6 +39,3 @@ class PolygonRepository:
         if polygon is not None:
             self.session.delete(polygon)
             self.session.commit()
-
-# Validate is a close polygon
-# SELECT ST_GeomFromText('POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))');
