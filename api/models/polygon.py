@@ -14,8 +14,8 @@ class Polygon(db.Model):
     geom = Column(Geometry('POLYGON'))
     properties = Column(JSON)
 
-    def __init__(self, name: str, date: datetime, geom: any, properties: Dict):
+    def __init__(self, name: str, date: str, geom: str, properties: Dict):
         self.name = name
-        self.date = date
+        self.date = datetime.strptime(date, '%Y-%m-%dT%H:%M:%S')
         self.geom = geom
         self.properties = properties

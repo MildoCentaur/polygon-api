@@ -1,10 +1,10 @@
-from datetime import datetime
 from unittest.mock import MagicMock
 
 import pytest
 
 from models.polygon import Polygon
 from services.validator import SavePolygonValidator, is_valid_name
+from tests.test_constants import *
 
 
 @pytest.fixture
@@ -24,9 +24,9 @@ def test_save_polygon_validator_exists():
 
 
 def test_validate_correct_polygon(validator, mock_dao):
-    posted_data = {"area": "DUMMY_PROPER_POLYGON",
-                   "name": "dummyValidName",
-                   "date": "2020-04-21T18:25:43",
+    posted_data = {"area": DUMMY_POLYGON,
+                   "name": DUMMY_VALID_NAME,
+                   "date": DUMMY_DATE,
                    "properties": {"prop1": "value1", "prop2": "value2"}}
     mock_dao.find_by_name = MagicMock(return_value=None)
     mock_dao.is_closed_polygon = MagicMock(return_value=True)
@@ -34,9 +34,9 @@ def test_validate_correct_polygon(validator, mock_dao):
 
 
 def test_validate_wrong_polygon(validator, mock_dao):
-    posted_data = {"area": "DUMMY_WRONG_POLYGON",
-                   "name": "dummyValidName",
-                   "date": "2020-04-21T18:25:43",
+    posted_data = {"area": DUMMY_POLYGON,
+                   "name": DUMMY_VALID_NAME,
+                   "date": DUMMY_DATE,
                    "properties": {"prop1": "value1", "prop2": "value2"}}
     mock_dao.find_by_name = MagicMock(return_value=None)
     mock_dao.is_closed_polygon = MagicMock(return_value=False)
@@ -44,11 +44,11 @@ def test_validate_wrong_polygon(validator, mock_dao):
 
 
 def test_validate_valid_name_ok():
-    assert is_valid_name("dummyName")
+    assert is_valid_name(DUMMY_VALID_NAME)
 
 
 def test_validate_valid_name_fail():
-    assert not is_valid_name("dummy!name")
+    assert not is_valid_name(DUMMY_INVALID_NAME)
 
 
 def test_validate_name_not_taken(validator, mock_dao):
@@ -59,7 +59,7 @@ def test_validate_name_not_taken(validator, mock_dao):
 
 def test_validate_name_taken(validator, mock_dao):
     name = "duplicated"
-    duplicated_polygon = Polygon(name, datetime.now(), None, {})
+    duplicated_polygon = Polygon(name, "2020-04-21T18:25:43", "DUMMY_POLYGON", {})
     mock_dao.find_by_name = MagicMock(return_value=duplicated_polygon)
     assert validator.is_name_taken(name)
 
