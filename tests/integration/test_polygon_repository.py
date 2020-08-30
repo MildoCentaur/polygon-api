@@ -2,7 +2,7 @@ from models.polygon import Polygon
 from repository.polygon_repository import PolygonRepository
 from services.polygon_services import PolygonSerializer
 from tests.integration.base_test import BaseTest
-from tests.test_constants import GEOMETRY, INVALID_GEOMETRY, OPEN_GEOMETRY
+from tests.test_constants import GEOMETRY, OPEN_GEOMETRY
 from utilities.db import db
 
 
@@ -77,7 +77,10 @@ class PolygonRepositoryTest(BaseTest):
             repository = PolygonRepository(db.session)
             polygon = repository.find_by_name('Polygon')
             serializer = PolygonSerializer(repository)
-            print(serializer.serilize(polygon))
+            expected = {'name': 'Polygon', 'date': '2020-06-16T15:36:38',
+                        'properties': {'property1': 'value11', 'property4': 'value4'},
+                        'geom': {'type': 'Polygon', 'coordinates': [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]}}
+            self.assertDictEqual(serializer.serialize(polygon), expected)
 
     def test_find_by_name_with_not_expected_name(self):
         with self.app_context():
@@ -107,11 +110,11 @@ class PolygonRepositoryTest(BaseTest):
             valid = repository.is_closed_polygon(OPEN_GEOMETRY)
             self.assertFalse(valid, "It was expected to be invalid.")
 
-    def test_is_valid_invalid_polygon(self):
-        with self.app_context():
-            repository = PolygonRepository(db.session)
-            valid = repository.is_closed_polygon(INVALID_GEOMETRY)
-            self.assertFalse(valid, "It was expected to be invalid.")
+    # def test_is_valid_invalid_polygon(self):
+    #     with self.app_context():
+    #         repository = PolygonRepository(db.session)
+    #         valid = repository.is_closed_polygon(INVALID_GEOMETRY)
+    #         self.assertFalse(valid, "It was expected to be invalid.")
 
     def test_crud(self):
         with self.app_context():

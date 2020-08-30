@@ -35,7 +35,7 @@ class PolygonRepository:
     def is_closed_polygon(self, geometry: Dict) -> bool:
         try:
             is_closed = self.session.query(
-                func.ST_isclosed(func.ST_SetSRID(func.ST_GeomFromGeoJSON(geometry), 4326)).label('closed')).one().closed
+                func.ST_isclosed(func.ST_GeomFromGeoJSON(json.dumps(geometry))).label('closed')).one().closed
         except BaseException:
             return False
 
@@ -57,4 +57,5 @@ class PolygonRepository:
         return json.loads(result)
 
     def geojson_to_geo(self, geometry: Dict) -> object:
-        return self.session.query(func.ST_SetSRID(func.ST_GeomFromGeoJSON(geometry), 4326).label('geom')).one().geom
+        return self.session.query(
+            func.ST_SetSRID(func.ST_GeomFromGeoJSON(json.dumps(geometry)), 4326).label('geom')).one().geom

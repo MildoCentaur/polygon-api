@@ -10,7 +10,8 @@ class PolygonRegistrator:
         self.repository = repository
 
     def register(self, data: Dict) -> Polygon:
-        polygon = Polygon(data["name"], data["date"], data["area"], data["properties"])
+        geom = self.repository.geojson_to_geo(data["area"])
+        polygon = Polygon(data["name"], data["date"], geom, data["properties"])
         return self.repository.save(polygon)
 
 
