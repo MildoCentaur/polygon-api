@@ -15,7 +15,7 @@ from utilities.db import db
 class BaseTest(TestCase):
     def setUp(self):
         # Make sure database exists
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:mysecretpassword@localhost:5433/postgres'
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:mysecretpassword@localhost:5432/postgres'
         with app.app_context():
             db.init_app(app)
         # Get a tests client

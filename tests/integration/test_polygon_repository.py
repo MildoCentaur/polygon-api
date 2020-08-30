@@ -1,10 +1,13 @@
 from models.polygon import Polygon
 from repository.polygon_repository import PolygonRepository
+from services.polygon_services import PolygonSerializer
 from tests.integration.base_test import BaseTest
+from tests.test_constants import GEOMETRY, INVALID_GEOMETRY, OPEN_GEOMETRY
 from utilities.db import db
 
 
 class PolygonRepositoryTest(BaseTest):
+
 
     def test_find_by_properties(self):
         with self.app_context():
@@ -69,6 +72,13 @@ class PolygonRepositoryTest(BaseTest):
             self.assertIsNotNone(polygon, "Expected to find an area.")
             self.assertEquals(polygon.name, "Polygon", "Expected to find an area with name Polygon.")
 
+    def test_serializer(self):
+        with self.app_context():
+            repository = PolygonRepository(db.session)
+            polygon = repository.find_by_name('Polygon')
+            serializer = PolygonSerializer(repository)
+            print(serializer.serilize(polygon))
+
     def test_find_by_name_with_not_expected_name(self):
         with self.app_context():
             repository = PolygonRepository(db.session)
@@ -78,34 +88,36 @@ class PolygonRepositoryTest(BaseTest):
     def test_is_valid_simple_polygon(self):
         with self.app_context():
             repository = PolygonRepository(db.session)
-            valid = repository.is_closed_polygon(['0 0,1 0,1 1,0 1,0 0'])
+            geometry = {"type": "Polygon", "coordinates": [[[0, 4], [4, 4], [7, 2], [0, 4]]]}
+            valid = repository.is_closed_polygon(geometry)
             self.assertTrue(valid, "It was expected to be valid.")
 
     def test_is_valid_complex_polygon(self):
         with self.app_context():
             repository = PolygonRepository(db.session)
-            valid = repository.is_closed_polygon(
-                ['0 0,10 0,10 10,0 10,0 0', '2 2,2 4,4 4,4 2,2 2', '5.5 5.5,5 7,7 7,7 5,5.5 5.5'])
+            geometry = {"type": "Polygon", "coordinates": [[[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]],
+                                                           [[2, 2], [2, 4], [4, 4], [4, 2], [2, 2]],
+                                                           [[5.5, 5.5], [5, 7], [7, 5], [5.5, 5.5]]]}
+            valid = repository.is_closed_polygon(geometry)
             self.assertTrue(valid, "It was expected to be valid.")
 
     def test_is_valid_open_polygon(self):
         with self.app_context():
             repository = PolygonRepository(db.session)
-            valid = repository.is_closed_polygon(
-                ['0 0,10 0,10 10,0 10,0 1'])
+            valid = repository.is_closed_polygon(OPEN_GEOMETRY)
             self.assertFalse(valid, "It was expected to be invalid.")
 
     def test_is_valid_invalid_polygon(self):
         with self.app_context():
             repository = PolygonRepository(db.session)
-            valid = repository.is_closed_polygon(
-                ['0 0,10 a,10 10,0 10,0 0'])
+            valid = repository.is_closed_polygon(INVALID_GEOMETRY)
             self.assertFalse(valid, "It was expected to be invalid.")
 
     def test_crud(self):
         with self.app_context():
             repository = PolygonRepository(db.session)
-            polygon = Polygon('testpolygon3', "2020-08-21T18:25:43", 'POLYGON((0 0,1 0,1 1,0 1,0 0))',
+            geom = repository.geojson_to_geo(GEOMETRY)
+            polygon = Polygon('testpolygon3', "2020-08-21T18:25:43", geom,
                               {"prop1": "value1", "prop2": "value2"})
             saved = repository.save(polygon)
             self.assertIsNotNone(saved, "Expected to save the polygon.")

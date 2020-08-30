@@ -1,5 +1,5 @@
-import re
-from typing import Iterable, List
+import json
+from typing import Iterable, List, Dict
 
 from sqlalchemy import func, desc, String, cast
 
@@ -10,20 +10,20 @@ class PolygonRepository:
     def __init__(self, session) -> None:
         self.session = session
 
-    def find_by_properties(self, properties: str) -> Iterable[object]:
+    def find_by_properties(self, properties: str) -> Iterable[Polygon]:
         return self.session.query(Polygon).filter(cast(Polygon.properties, String) == properties)
 
     def find_intersected_area(self, search_area: str) -> Iterable[object]:
         return self.session.query(Polygon.name,
-                                  func.ST_Intersection(func.ST_GeomFromText(search_area), Polygon.geom)
+                                  func.ST_Intersection(func.ST_GeomFromText(search_area, 4326), Polygon.geom)
                                   .label('intersected')) \
-            .filter(Polygon.geom.ST_Intersects(func.ST_GeomFromText(search_area))) \
+            .filter(Polygon.geom.ST_Intersects(func.ST_GeomFromText(search_area, 4326))) \
             .order_by(desc(func.ST_Area(Polygon.geom)))
 
     def find_by_area(self, search_area: str) -> Iterable[Polygon]:
         return self.session.query(Polygon).filter(
-            Polygon.geom.ST_Intersects(func.ST_GeomFromText(search_area))).order_by(desc(
-            func.ST_Area(Polygon.geom)))
+            Polygon.geom.ST_Intersects(func.ST_GeomFromText(search_area, 4326))) \
+            .order_by(desc(func.ST_Area(Polygon.geom)))
 
     def find_by_name(self, name: str) -> Polygon:
         return self.session.query(Polygon).filter_by(name=name).first()
@@ -32,19 +32,14 @@ class PolygonRepository:
         search = "%{}%".format(name)
         return list(self.session.query(Polygon).filter(Polygon.name.like(search)).order_by(Polygon.name))
 
-    def is_closed_polygon(self, polygon_points: List[str]) -> bool:
-        pattern = re.compile("[0-9,. ]+")
-        for polygon in polygon_points:
-            if not pattern.fullmatch(polygon):
-                return False
-        complete_polygon = ",".join(["({0})".format(polygon) for polygon in polygon_points])
+    def is_closed_polygon(self, geometry: Dict) -> bool:
         try:
-            is_polygon = self.session.execute(
-                'select ST_isclosed(ST_GeomFromText(\'POLYGON({0})\'))'.format(complete_polygon))
+            is_closed = self.session.query(
+                func.ST_isclosed(func.ST_SetSRID(func.ST_GeomFromGeoJSON(geometry), 4326)).label('closed')).one().closed
         except BaseException:
             return False
 
-        return list(is_polygon)[0]
+        return is_closed
 
     def save(self, polygon: Polygon) -> Polygon:
         self.session.add(polygon)
@@ -56,3 +51,10 @@ class PolygonRepository:
         if polygon is not None:
             self.session.delete(polygon)
             self.session.commit()
+
+    def to_geo_json(self, geom: object) -> Dict:
+        result = self.session.query(func.ST_AsGeoJSON(func.ST_Transform(geom, 4326)).label('geoJson')).one()[0]
+        return json.loads(result)
+
+    def geojson_to_geo(self, geometry: Dict) -> object:
+        return self.session.query(func.ST_SetSRID(func.ST_GeomFromGeoJSON(geometry), 4326).label('geom')).one().geom
