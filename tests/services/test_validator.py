@@ -4,18 +4,19 @@ import pytest
 
 from models.polygon import Polygon
 from services.validator import SavePolygonValidator, is_valid_name
-from tests.test_constants import *
+from tests.test_constants import DUMMY_POLYGON, DUMMY_VALID_NAME, DUMMY_DATE, DUMMY_INVALID_NAME, GEOMETRY, \
+    OPEN_GEOMETRY
 
 
 @pytest.fixture
-def mock_dao():
-    mock_dao = MagicMock()
-    return mock_dao
+def mock_repository():
+    repository = MagicMock()
+    return repository
 
 
 @pytest.fixture
-def validator(mock_dao):
-    return SavePolygonValidator(mock_dao)
+def validator(mock_repository):
+    return SavePolygonValidator(mock_repository)
 
 
 @pytest.mark.usefixtures("validator")
@@ -23,23 +24,23 @@ def test_save_polygon_validator_exists():
     assert validator is not None
 
 
-def test_validate_correct_polygon(validator, mock_dao):
+def test_validate_correct_polygon(validator, mock_repository):
     posted_data = {"area": DUMMY_POLYGON,
                    "name": DUMMY_VALID_NAME,
                    "date": DUMMY_DATE,
                    "properties": {"prop1": "value1", "prop2": "value2"}}
-    mock_dao.find_by_name = MagicMock(return_value=None)
-    mock_dao.is_closed_polygon = MagicMock(return_value=True)
+    mock_repository.find_by_name = MagicMock(return_value=None)
+    mock_repository.is_closed_polygon = MagicMock(return_value=True)
     assert validator.validate(posted_data)
 
 
-def test_validate_wrong_polygon(validator, mock_dao):
+def test_validate_wrong_polygon(validator, mock_repository):
     posted_data = {"area": DUMMY_POLYGON,
                    "name": DUMMY_VALID_NAME,
                    "date": DUMMY_DATE,
                    "properties": {"prop1": "value1", "prop2": "value2"}}
-    mock_dao.find_by_name = MagicMock(return_value=None)
-    mock_dao.is_closed_polygon = MagicMock(return_value=False)
+    mock_repository.find_by_name = MagicMock(return_value=None)
+    mock_repository.is_closed_polygon = MagicMock(return_value=False)
     assert not validator.validate(posted_data)
 
 
@@ -51,32 +52,32 @@ def test_validate_valid_name_fail():
     assert not is_valid_name(DUMMY_INVALID_NAME)
 
 
-def test_validate_name_not_taken(validator, mock_dao):
+def test_validate_name_not_taken(validator, mock_repository):
     name = "dummy_name"
-    mock_dao.find_by_name = MagicMock(return_value=None)
+    mock_repository.find_by_name = MagicMock(return_value=None)
     assert not validator.is_name_taken(name)
 
 
-def test_validate_name_taken(validator, mock_dao):
+def test_validate_name_taken(validator, mock_repository):
     name = "duplicated"
     duplicated_polygon = Polygon(name, "2020-04-21T18:25:43", "DUMMY_POLYGON", {})
-    mock_dao.find_by_name = MagicMock(return_value=duplicated_polygon)
+    mock_repository.find_by_name = MagicMock(return_value=duplicated_polygon)
     assert validator.is_name_taken(name)
 
 
-def test_validate_closed_polygon_with_multipolygon(validator, mock_dao):
-    polygon_json = ["(0 0, 10 0, 10 10, 0 10, 0 0)", "(1 1, 1 2, 2 2, 2 1, 1 1)"]
-    mock_dao.is_closed_polygon = MagicMock(return_value=True)
+def test_validate_closed_polygon_with_multipolygon(validator, mock_repository):
+    polygon_json = GEOMETRY
+    mock_repository.is_closed_polygon = MagicMock(return_value=True)
     assert validator.is_valid_polygon(polygon_json)
 
 
-def test_validate_closed_polygon_with_simple_multipolygon(validator, mock_dao):
-    polygon_json = ["(0 0, 10 0, 10 10, 0 10, 0 0)"]
-    mock_dao.is_closed_polygon = MagicMock(return_value=True)
+def test_validate_closed_polygon_with_simple_multipolygon(validator, mock_repository):
+    polygon_json = GEOMETRY
+    mock_repository.is_closed_polygon = MagicMock(return_value=True)
     assert validator.is_valid_polygon(polygon_json)
 
 
-def test_validate_closed_polygon_with_simple_open_polygon(validator, mock_dao):
-    polygon_json = ["(0 0, 10 0, 10 10, 0 10, 0 1)"]
-    mock_dao.is_closed_polygon = MagicMock(return_value=False)
+def test_validate_closed_polygon_with_simple_open_polygon(validator, mock_repository):
+    polygon_json = OPEN_GEOMETRY
+    mock_repository.is_closed_polygon = MagicMock(return_value=False)
     assert not validator.is_valid_polygon(polygon_json)
