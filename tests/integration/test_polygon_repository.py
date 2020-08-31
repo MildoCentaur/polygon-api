@@ -1,8 +1,11 @@
+from pytest import raises
+from sqlalchemy.exc import InternalError
+
 from models.polygon import Polygon
 from repository.polygon_repository import PolygonRepository
 from services.polygon_services import PolygonSerializer
 from tests.integration.base_test import BaseTest
-from tests.test_constants import GEOMETRY, OPEN_GEOMETRY
+from tests.test_constants import GEOMETRY, OPEN_GEOMETRY, INVALID_GEOMETRY
 from utilities.db import db
 
 
@@ -110,11 +113,11 @@ class PolygonRepositoryTest(BaseTest):
             valid = repository.is_closed_polygon(OPEN_GEOMETRY)
             self.assertFalse(valid, "It was expected to be invalid.")
 
-    # def test_is_valid_invalid_polygon(self):
-    #     with self.app_context():
-    #         repository = PolygonRepository(db.session)
-    #         valid = repository.is_closed_polygon(INVALID_GEOMETRY)
-    #         self.assertFalse(valid, "It was expected to be invalid.")
+    def test_geom_from_json(self):
+        with self.app_context():
+            repository = PolygonRepository(db.session)
+            with raises(InternalError):
+                repository.geojson_to_geo(INVALID_GEOMETRY)
 
     def test_crud(self):
         with self.app_context():
