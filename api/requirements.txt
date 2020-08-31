@@ -1,3 +1,4 @@
+dependency-injector
 Flask
 flask_restful
 flask_sqlalchemy
@@ -7,3 +8,4 @@ geojson
 Flask-API
 SQLAlchemy-serializer
 geopandas
+coverage
