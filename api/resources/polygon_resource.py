@@ -4,7 +4,7 @@ from flask import request
 from flask_restful import Resource
 
 from repository.polygon_repository import PolygonRepository
-from services.polygon_services import PolygonRegistrator, PolygonSerializer
+from services.polygon_services import PolygonRegistrator, PolygonSerializer, PolygonQuerySolver
 from services.validator import SavePolygonValidator
 from utilities.db import db
 
@@ -22,29 +22,16 @@ class PolygonResource(Resource):
 
         repository = PolygonRepository(db.session)
         serializer = PolygonSerializer(repository)
-        # try:
-        if "name" in args.keys():
-            results = repository.find_like_name(args["name"])
-        elif "intersect" in args.keys():
-            results = repository.find_by_area(args["intersect"])
-        elif "intersection" in args.keys():
-            results = repository.find_intersected_area(args["intersection"])
-            return [serializer.serialize_area(result) for result in results] if results is not None else []
-        elif "properties" in args.keys():
-            results = repository.find_by_properties(args["properties"])
-        else:
-            return {'message': 'Invalid search criteria'}, 400
+        polygon_query_solver = PolygonQuerySolver(repository, serializer)
 
-        return [serializer.serialize(result) for result in results] if results is not None else []
-        # except BaseException ex:
-        #     return {'message': 'Invalid search data'}, 400
+        return polygon_query_solver.query(args)
 
     def delete(self):
         posted_data = request.get_json()
         logging.info('posted_data {0}'.format(posted_data))
-        dao = PolygonRepository(db.session)
+        repository = PolygonRepository(db.session)
         try:
-            dao.delete(posted_data["name"])
+            repository.delete(posted_data["name"])
         except ConnectionError:
             return {"message": "Database error"}, 500
 
@@ -68,8 +55,3 @@ class PolygonResource(Resource):
 
         return {"message": "Area saved correctly"}
 
-# query_parameters = request.args
-#
-#     id = query_parameters.get('id')
-#     published = query_parameters.get('published')
-#     author = query_parameters.get('author')
