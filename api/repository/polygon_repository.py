@@ -53,7 +53,7 @@ class PolygonRepository:
             self.session.commit()
 
     def to_geo_json(self, geom: object) -> Dict:
-        result = self.session.query(func.ST_AsGeoJSON(func.ST_Transform(geom, 4326)).label('geoJson')).one()[0]
+        result = self.session.query(func.ST_AsGeoJSON(func.ST_Transform(geom, 4326)).label('geoJson')).one().geoJson
         return json.loads(result)
 
     def geojson_to_geo(self, geometry: Dict) -> object:
