@@ -12,8 +12,7 @@ logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL',
                                                        'postgresql://postgres:mysecretpassword@polygon-api_postgis_1:5432/postgres')
-#
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 api = Api(app)
 
 api.add_resource(PolygonResource, "/area")

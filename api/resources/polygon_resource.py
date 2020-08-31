@@ -2,9 +2,10 @@ import logging
 
 from flask import request
 from flask_restful import Resource
+from sqlalchemy.exc import DatabaseError
 
 from repository.polygon_repository import PolygonRepository
-from services.polygon_services import PolygonRegistrator, PolygonSerializer, PolygonQuerySolver
+from services.polygon_services import PolygonRegistrator, PolygonSerializer, PolygonQuerySolver, PolygonEraser
 from services.validator import SavePolygonValidator
 from utilities.db import db
 
@@ -23,16 +24,19 @@ class PolygonResource(Resource):
         repository = PolygonRepository(db.session)
         serializer = PolygonSerializer(repository)
         polygon_query_solver = PolygonQuerySolver(repository, serializer)
-
-        return polygon_query_solver.query(args)
+        try:
+            return polygon_query_solver.query(args)
+        except DatabaseError:
+            return {"message": "Database error"}, 500
 
     def delete(self):
         posted_data = request.get_json()
         logging.info('posted_data {0}'.format(posted_data))
         repository = PolygonRepository(db.session)
+        eraser = PolygonEraser(repository)
         try:
-            repository.delete(posted_data["name"])
-        except ConnectionError:
+            eraser.delete(posted_data["name"])
+        except DatabaseError:
             return {"message": "Database error"}, 500
 
         return {"message": "Area deleted successful"}
@@ -45,12 +49,11 @@ class PolygonResource(Resource):
         registrator = PolygonRegistrator(repository)
         validator = SavePolygonValidator(repository)
 
-        if not validator.validate(posted_data):
-            return {"message": "Invalid payload"}, 500
-
         try:
+            if not validator.validate(posted_data):
+                return {"message": "Invalid payload"}, 500
             registrator.register(posted_data)
-        except ConnectionError:
+        except DatabaseError:
             return {"message": "Database error"}, 500
 
         return {"message": "Area saved correctly"}
