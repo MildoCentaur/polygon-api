@@ -5,7 +5,7 @@ import pytest
 from models.polygon import Polygon
 from services.validator import SavePolygonValidator, is_valid_name
 from tests.test_constants import DUMMY_POLYGON, DUMMY_VALID_NAME, DUMMY_DATE, DUMMY_INVALID_NAME, GEOMETRY, \
-    OPEN_GEOMETRY
+    OPEN_GEOMETRY, DUMMY_INVALID_DATE, VALID_AREA
 
 
 @pytest.fixture
@@ -32,6 +32,42 @@ def test_validate_correct_polygon(validator, mock_repository):
     mock_repository.find_by_name = MagicMock(return_value=None)
     mock_repository.is_closed_polygon = MagicMock(return_value=True)
     assert validator.validate(posted_data)
+
+
+def test_validate_correct_parameters(validator):
+    posted_data = {"invalid": DUMMY_POLYGON,
+                   "parameters": DUMMY_VALID_NAME,
+                   "date": DUMMY_DATE,
+                   "properties": {"prop1": "value1", "prop2": "value2"}}
+
+    assert not validator.validate(posted_data)
+
+
+def test_validate_invalid_name(validator):
+    posted_data = {"name": DUMMY_INVALID_NAME,
+                   "area": VALID_AREA,
+                   "date": DUMMY_DATE,
+                   "properties": {"prop1": "value1", "prop2": "value2"}}
+
+    assert not validator.validate(posted_data)
+
+
+def test_validate_name_taken_by_validator(validator, mock_repository):
+    posted_data = {"name": DUMMY_VALID_NAME,
+                   "area": VALID_AREA,
+                   "date": DUMMY_INVALID_DATE,
+                   "properties": {"prop1": "value1", "prop2": "value2"}}
+    mock_repository.find_by_name = MagicMock(return_value=DUMMY_VALID_NAME)
+    assert not validator.validate(posted_data)
+
+
+def test_validate_invalid_date(validator, mock_repository):
+    posted_data = {"name": DUMMY_VALID_NAME,
+                   "area": VALID_AREA,
+                   "date": DUMMY_INVALID_DATE,
+                   "properties": {"prop1": "value1", "prop2": "value2"}}
+    mock_repository.find_by_name = MagicMock(return_value=None)
+    assert not validator.validate(posted_data)
 
 
 def test_validate_wrong_polygon(validator, mock_repository):
