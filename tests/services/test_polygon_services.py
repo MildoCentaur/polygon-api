@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
-from models.polygon import Polygon
-from services.polygon_services import PolygonRegistrator, PolygonEraser, PolygonSerializer, PolygonQuerySolver
+from app.models.polygon import Polygon
+from app.services.polygon_services import PolygonRegistrator, PolygonEraser, PolygonSerializer, PolygonQuerySolver
 from tests.test_constants import DUMMY_POLYGON, DUMMY_DATE, GEOMETRY, DUMMY_VALID_NAME, VALID_AREA
 
 DUMMY_POLYGON_OBJECT = Polygon(DUMMY_POLYGON, DUMMY_DATE, GEOMETRY, {})

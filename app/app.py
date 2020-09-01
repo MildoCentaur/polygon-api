@@ -4,18 +4,18 @@ import os
 from flask import Flask
 from flask_restful import Api
 
-from repository.polygon_repository import PolygonRepository
-from resources.polygon_resource import PolygonResource
-from services.polygon_services import PolygonSerializer, PolygonRegistrator, PolygonQuerySolver, PolygonEraser
-from services.validator import SavePolygonValidator
-from utilities.db import db
+from app.repository.polygon_repository import PolygonRepository
+from app.resources.polygon_resource import PolygonResource
+from app.services.polygon_services import PolygonSerializer, PolygonRegistrator, PolygonQuerySolver, PolygonEraser
+from app.services.validator import SavePolygonValidator
+from app.utilities.db import db
 
 logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL',
                                                        'postgresql://postgres:mysecretpassword@polygon-api_postgis_1:5432/postgres')
-
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 api = Api(app)
 repository = PolygonRepository(db.session)
 serializer = PolygonSerializer(repository)

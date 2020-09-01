@@ -4,12 +4,11 @@ from typing import Dict
 from geoalchemy2 import Geometry
 from sqlalchemy import Column, String, Date, JSON
 
-from utilities.constants import DATE_FORMAT
-from utilities.db import db
+from app.utilities.constants import DATE_FORMAT
+from app.utilities.db import db
 
 
 class Polygon(db.Model):
-
     __tablename__ = 'areas'
     name = Column(String, primary_key=True)
     date = Column(Date)

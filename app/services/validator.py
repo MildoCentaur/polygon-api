@@ -2,8 +2,8 @@ import datetime
 import logging
 from typing import List, Dict
 
-from repository.polygon_repository import PolygonRepository
-from utilities.constants import DATE_FORMAT
+from app.repository.polygon_repository import PolygonRepository
+from app.utilities.constants import DATE_FORMAT
 
 
 def check_expected_parameters(expected: List, parameters: Dict) -> bool:

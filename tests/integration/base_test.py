@@ -8,13 +8,14 @@ and makes sure that it is a new, blank database each time.
 
 from unittest import TestCase
 
-from app import app
-from utilities.db import db
+from app.app import app
+from app.utilities.db import db
 
 
 class BaseTest(TestCase):
     def setUp(self):
         app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:mysecretpassword@localhost:5432/postgres'
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         with app.app_context():
             db.init_app(app)
         self.app = app.test_client()

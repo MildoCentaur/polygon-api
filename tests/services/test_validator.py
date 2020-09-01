@@ -2,8 +2,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from models.polygon import Polygon
-from services.validator import SavePolygonValidator, is_valid_name
+from app.models.polygon import Polygon
+from app.services.validator import SavePolygonValidator, is_valid_name
 from tests.test_constants import DUMMY_POLYGON, DUMMY_VALID_NAME, DUMMY_DATE, DUMMY_INVALID_NAME, GEOMETRY, \
     OPEN_GEOMETRY, DUMMY_INVALID_DATE, VALID_AREA
 
