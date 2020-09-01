@@ -1,0 +1,166 @@
+{
+  "info": {
+    "_postman_id": "52602bc4-098e-471d-83ed-7dd6b650189e",
+    "name": "exercice",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "http://localhost:5000/area",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\":\"alejandro7\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/area",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "area"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:5000/area",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\":\"alejandro8\",\n    \"area\":  {\"type\":\"Polygon\",\"coordinates\":[[[0,40],[40,40],[70,20],[40,0],[0,40]], [[0,45],[35,35],[40,40],[0,45]]]},\n    \"date\": \"2020-08-21T18:25:43\",\n    \"properties\": {\"prop1\": \"value1\", \"prop2\": \"value2\"}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5000/area",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "area"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET Intersected area",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/area?intersect=Polygon((0%203,%205%208,%208%208,%2012%2012,%200%2012,%200%203))",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "area"
+          ],
+          "query": [
+            {
+              "key": "intersect",
+              "value": "Polygon((0%203,%205%208,%208%208,%2012%2012,%200%2012,%200%203))"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET intersection",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/area?intersection=Polygon((0%203,%205%208,%208%208,%2012%2012,%200%2012,%200%203))",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "area"
+          ],
+          "query": [
+            {
+              "key": "intersection",
+              "value": "Polygon((0%203,%205%208,%208%208,%2012%2012,%200%2012,%200%203))"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET By Properties",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/area?properties={%22property1%22:%22value11%22,%22property4%22:%22value4%22}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "area"
+          ],
+          "query": [
+            {
+              "key": "properties",
+              "value": "{%22property1%22:%22value11%22,%22property4%22:%22value4%22}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET Like name",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/area?name=olygon",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "area"
+          ],
+          "query": [
+            {
+              "key": "name",
+              "value": "olygon"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "protocolProfileBehavior": {}
+}

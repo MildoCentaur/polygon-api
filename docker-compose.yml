@@ -1,0 +1,19 @@
+version: '3'
+services:
+  api:
+    build: app
+    ports:
+      - "5000:5000"
+    links:
+      - postgis
+  postgis:
+    image: postgis/postgis
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+
+volumes:
+  init.sql:
