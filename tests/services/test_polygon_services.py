@@ -61,9 +61,41 @@ def test_query_solver_query_name():
     mock_repository = MagicMock()
     mock_serializer = MagicMock()
     query_solver = PolygonQuerySolver(mock_repository, mock_serializer)
-    mock_serializer.serialize = MagicMock()
-    mock_repository.find_like_name = MagicMock(return_value=VALID_AREA)
-    json = serializer.serialize_area(area)
-    expected = {'geom': {'type': 'Polygon', 'coordinates': [[[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]]]}}
+    mock_repository.find_like_name = MagicMock(return_value=[VALID_AREA])
+    mock_serializer.serialize = MagicMock(return_value=VALID_AREA)
 
-    assert json == expected
+    json = query_solver.query({"name": DUMMY_VALID_NAME})
+    assert json == [VALID_AREA]
+
+
+def test_query_solver_query_intersection():
+    mock_repository = MagicMock()
+    mock_serializer = MagicMock()
+    query_solver = PolygonQuerySolver(mock_repository, mock_serializer)
+    mock_repository.find_intersected_area = MagicMock(return_value=[VALID_AREA])
+    mock_serializer.serialize_area = MagicMock(return_value=VALID_AREA)
+
+    json = query_solver.query({"intersection": GEOMETRY})
+    assert json == [VALID_AREA]
+
+
+def test_query_solver_query_properties():
+    mock_repository = MagicMock()
+    mock_serializer = MagicMock()
+    query_solver = PolygonQuerySolver(mock_repository, mock_serializer)
+    mock_repository.find_by_properties = MagicMock(return_value=[VALID_AREA])
+    mock_serializer.serialize = MagicMock(return_value=VALID_AREA)
+
+    json = query_solver.query({"properties": {}})
+    assert json == [VALID_AREA]
+
+
+def test_query_solver_query_intersected():
+    mock_repository = MagicMock()
+    mock_serializer = MagicMock()
+    query_solver = PolygonQuerySolver(mock_repository, mock_serializer)
+    mock_repository.find_by_area = MagicMock(return_value=[VALID_AREA])
+    mock_serializer.serialize = MagicMock(return_value=VALID_AREA)
+
+    json = query_solver.query({"intersect": GEOMETRY})
+    assert json == [VALID_AREA]

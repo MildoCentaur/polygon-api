@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 from models.polygon import Polygon
 from repository.polygon_repository import PolygonRepository
@@ -57,27 +57,27 @@ class PolygonQuerySolver:
 
         key = list(args.keys())[0]
         try:
-            result = dispatcher[key](args), 200
+            result = dispatcher[key](args)
         except KeyError:
             result = {'message': 'Invalid search criteria'}, 400
 
         return result
 
-    def search_properties(self, args):
+    def search_properties(self, args) -> List[Dict]:
         results = self.repository.find_by_properties(args["properties"])
         return self.serialize_polygon_results(results)
 
-    def serialize_polygon_results(self, results):
+    def serialize_polygon_results(self, results) -> List[Dict]:
         return [self.serializer.serialize(result) for result in results] if results is not None else []
 
-    def search_name(self, args):
+    def search_name(self, args) -> List[Dict]:
         results = self.repository.find_like_name(args["name"])
         return self.serialize_polygon_results(results)
 
-    def search_intersect(self, args):
+    def search_intersect(self, args) -> List[Dict]:
         results = self.repository.find_by_area(args["intersect"])
         return self.serialize_polygon_results(results)
 
-    def search_intersection(self, args):
+    def search_intersection(self, args) -> List[Dict]:
         results = self.repository.find_intersected_area(args["intersection"])
         return [self.serializer.serialize_area(result) for result in results] if results is not None else []
