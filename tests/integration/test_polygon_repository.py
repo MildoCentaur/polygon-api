@@ -113,6 +113,12 @@ class PolygonRepositoryTest(BaseTest):
             valid = repository.is_closed_polygon(OPEN_GEOMETRY)
             self.assertFalse(valid, "It was expected to be invalid.")
 
+    def test_is_valid_open_polygon(self):
+        with self.app_context():
+            repository = PolygonRepository(db.session)
+            valid = repository.is_closed_polygon(INVALID_GEOMETRY)
+            self.assertFalse(valid, "It was expected to be invalid.")
+
     def test_geom_from_json(self):
         with self.app_context():
             repository = PolygonRepository(db.session)
