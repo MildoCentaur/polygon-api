@@ -1,8 +1,8 @@
 from typing import Dict, List
 
-from models.polygon import Polygon
-from repository.polygon_repository import PolygonRepository
-from utilities.constants import DATE_FORMAT
+from app.models.polygon import Polygon
+from app.repository.polygon_repository import PolygonRepository
+from app.utilities.constants import DATE_FORMAT
 
 
 class PolygonRegistrator:

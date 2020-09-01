@@ -1,16 +1,15 @@
 from pytest import raises
 from sqlalchemy.exc import InternalError
 
-from models.polygon import Polygon
-from repository.polygon_repository import PolygonRepository
-from services.polygon_services import PolygonSerializer
+from app.models.polygon import Polygon
+from app.repository.polygon_repository import PolygonRepository
+from app.services.polygon_services import PolygonSerializer
+from app.utilities.db import db
 from tests.integration.base_test import BaseTest
 from tests.test_constants import GEOMETRY, OPEN_GEOMETRY, INVALID_GEOMETRY
-from utilities.db import db
 
 
 class PolygonRepositoryTest(BaseTest):
-
 
     def test_find_by_properties(self):
         with self.app_context():
@@ -68,7 +67,7 @@ class PolygonRepositoryTest(BaseTest):
             repository = PolygonRepository(db.session)
             polygon = repository.find_by_name('Polygon')
             self.assertIsNotNone(polygon, "Expected to find an area.")
-            self.assertEquals(polygon.name, "Polygon", "Expected to find an area with name Polygon.")
+            self.assertEqual(polygon.name, "Polygon", "Expected to find an area with name Polygon.")
 
     def test_serializer(self):
         with self.app_context():

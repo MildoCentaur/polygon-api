@@ -3,7 +3,7 @@ from typing import Iterable, List, Dict
 
 from sqlalchemy import func, desc, String, cast
 
-from models.polygon import Polygon
+from app.models.polygon import Polygon
 
 
 class PolygonRepository:
