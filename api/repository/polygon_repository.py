@@ -14,12 +14,10 @@ class PolygonRepository:
         return self.session.query(Polygon).filter(cast(Polygon.properties, String) == properties)
 
     def find_intersected_area(self, search_area: str) -> Iterable[object]:
-        ## may be the union of the geometries ST_Union
-        return self.session.query(Polygon.name,
-                                  func.ST_Intersection(func.ST_GeomFromText(search_area, 4326), Polygon.geom)
-                                  .label('intersected')) \
-            .filter(Polygon.geom.ST_Intersects(func.ST_GeomFromText(search_area, 4326))) \
-            .order_by(desc(func.ST_Area(Polygon.geom)))
+        return self.session.query(
+            func.ST_Union(func.ST_Intersection(func.ST_GeomFromText(search_area, 4326), Polygon.geom))
+            .label('intersected')) \
+            .filter(Polygon.geom.ST_Intersects(func.ST_GeomFromText(search_area, 4326)))
 
     def find_by_area(self, search_area: str) -> Iterable[Polygon]:
         return self.session.query(Polygon).filter(
